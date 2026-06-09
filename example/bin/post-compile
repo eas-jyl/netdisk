@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "post-compile empty"
+
+chmod a+rx server
