@@ -2,12 +2,12 @@ package main
 
 import (
 	"log"
-
 	"go-netdisk/internal/config"
 )
 
 func main() {
-	cfg, err := config.Load("config/dev.yaml")
+	// cfg, err := config.Load("config/dev.yaml")
+	cfg, err := config.Load("../../config/dev.yaml")
 	if err != nil {
 		log.Fatalf("load config failed: %v", err)
 	}
