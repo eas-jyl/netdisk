@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"fmt"
+	"github.com/spf13/viper"
 )
 
 type Config struct {
@@ -28,7 +28,6 @@ type JWTConfig struct {
 	Secret      string `mapstructure:"secret"`
 	ExpireHours int    `mapstructure:"expire_hours"`
 }
-
 
 // 接口：获取配置文件
 func Load(path string) (*Config, error) {

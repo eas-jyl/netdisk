@@ -1,8 +1,9 @@
 package main
 
 import (
-	"log"
 	"go-netdisk/internal/config"
+	"go-netdisk/internal/db"
+	"log"
 )
 
 func main() {
@@ -19,4 +20,10 @@ func main() {
 		cfg.MySQL.Port,
 		cfg.MySQL.DBName,
 	)
+
+	if _, err := db.Init(cfg); err != nil {
+		log.Fatalf("init db failed: %v", err)
+	}
+
+	log.Println("database initialized successfully")
 }

@@ -1,72 +1,40 @@
 package main
 
-
 import (
 	"fmt"
-	"strings"
-	"github.com/spf13/viper"
+	"log"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-// 把配置映射到结构体
-type Config struct {
-    Server ServerConfig `mapstructure:"server"`
-    MySQL  MySQLConfig  `mapstructure:"mysql"`
+type User struct {
+	ID   uint
+	Name string
+	Age  int
 }
-
-type ServerConfig struct {
-    Host string `mapstructure:"host"`
-    Port int    `mapstructure:"port"`
-    Mode string `mapstructure:"mode"`
-}
-
-type MySQLConfig struct {
-    Host     string `mapstructure:"host"`
-    Port     int    `mapstructure:"port"`
-    Username string `mapstructure:"username"`
-    Password string `mapstructure:"password"`
-}
-
-
-// 接口：加载配置文件
-func LoadConfig(path string) (*Config, error) {
-	v := viper.New()
-
-	v.SetConfigFile(path)
-    v.SetDefault("server.host", "0.0.0.0")
-    v.SetDefault("server.port", 8080)
-    v.SetDefault("server.mode", "release")
-
-	// 读取配置文件
-	if err := v.ReadInConfig(); err != nil {
-		return nil, err
-	}
-
-	// 映射到结构体
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	v.AutomaticEnv()
-
-	var cfg Config
-	if err := v.Unmarshal(&cfg); err != nil {
-		return nil, err
-	}
-
-	return &cfg, nil 
-
-}
-
 
 func main() {
-	cfg, err := LoadConfig("./config.yaml")
+	dsn := "root:123456@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		log.Fatal("数据库连接失败:", err)
 	}
 
-	fmt.Println("配置读取成功")
-	fmt.Println("server.host =", cfg.Server.Host)
-	fmt.Println("server.port =", cfg.Server.Port)
-	fmt.Println("server.mode =", cfg.Server.Mode)
-	fmt.Println("mysql.host =", cfg.MySQL.Host)
-	fmt.Println("mysql.port =", cfg.MySQL.Port)
-	fmt.Println("mysql.username =", cfg.MySQL.Username)
-	fmt.Println("mysql.password =", cfg.MySQL.Password)
+	fmt.Println("MySQL 连接成功")
+
+	// 更改结果
+	var update_user User
+	db.First(&update_user)
+
+	update_user.Age = 20
+	update_user.Name = "baijiyi"
+
+	db.Save(&update_user)
+
+	// 查询结果
+	var query_user User
+	db.First(&query_user)
+	fmt.Printf("查询结果： ID = %d , Name = %s , Age = %d\n", query_user.ID, query_user.Name, query_user.Age)
+
 }
