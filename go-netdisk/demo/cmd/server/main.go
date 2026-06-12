@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"go-netdisk/internal/config"
 	"go-netdisk/internal/db"
+	"go-netdisk/internal/router"
 	"log"
 )
 
@@ -26,4 +28,12 @@ func main() {
 	}
 
 	log.Println("database initialized successfully")
+
+	r := router.New()
+	addr := fmt.Sprintf(":%d", cfg.App.Port)
+
+	log.Printf("server listening on %s", addr)
+	if err := r.Run(addr); err != nil {
+		log.Fatalf("start server failed: %v", err)
+	}
 }
