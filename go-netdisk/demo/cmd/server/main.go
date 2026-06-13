@@ -23,13 +23,14 @@ func main() {
 		cfg.MySQL.DBName,
 	)
 
-	if _, err := db.Init(cfg); err != nil {
+	gormDB, err := db.Init(cfg)
+	if err != nil {
 		log.Fatalf("init db failed: %v", err)
 	}
 
 	log.Println("database initialized successfully")
 
-	r := router.New()
+	r := router.New(gormDB, cfg)
 	addr := fmt.Sprintf(":%d", cfg.App.Port)
 
 	log.Printf("server listening on %s", addr)
