@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"go/token"
 	"time"
 
 	"go-netdisk/internal/config"
@@ -37,7 +38,7 @@ func NewAuthService(db *gorm.DB, cfg *config.Config) *AuthService {
 func (s *AuthService) Register(username, passwd string) (*model.User, error) {
 	// 查询数据库是否有该用户
 	var count int64
-	if err := s.db.Model(&model.User{}).Where("username = ?", username).Count(&count); err != nil {
+	if err := s.db.Model(&model.User{}).Where("username = ?", username).Count(&count).Error; err != nil {
 		return nil, fmt.Errorf("check username exists failed: %w", err)
 	}
 	if count > 0 {
@@ -112,4 +113,21 @@ func (s *AuthService) generateToken(user *model.User) (string, error) {
 		return "", fmt.Errorf("sign token failed: %w", err)
 	}
 	return signedToken, nil
+}
+
+// 接口： 解析客户端发送过来的token，并获取claims
+func ParseToken(tokenString, secret string) (*TokenClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(*TokenClaims)
+	if !ok || !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	return claims, nil
 }
